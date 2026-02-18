@@ -21,6 +21,19 @@ import Replicate from "replicate";
 //     url: () => string;
 // };
 
+async function streamToBuffer(stream: ReadableStream) {
+    const reader = stream.getReader();
+    const chunks: Uint8Array[] = [];
+    
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+    }
+    
+    return Buffer.concat(chunks);
+}
+
 export async function POST(req: Request) {
     const { model, prompt } = await req.json();
     
@@ -51,7 +64,7 @@ export async function POST(req: Request) {
     };
     
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-    const output = await replicate.run(model, { input }) as ArrayBufferView<ArrayBufferLike>;
+    const output = await replicate.run(model, { input });
     // output is ReadableStream
     // ReadableStream { locked: false, state: 'readable', supportsBYOB: false }
     // URL {
@@ -84,11 +97,13 @@ export async function POST(req: Request) {
     // const file = output as ReplicateFile;
     // const imageUrl = file.url();
     // console.log(imageUrl);
+
+    const buffer = await streamToBuffer(output);
     
     const imgName = `generated-${Math.random() * 1000}.png`;
     const imgPath = path.join(tempDirPath, imgName);
     const imgUrl = `${tempDirName}/${imgName}`;
-    await writeFile(imgPath, output); // To write the file to disk
+    await writeFile(imgPath, buffer); // To write the file to disk
     
     // const imageUrl = output.url().href; // To access the file URL
     
