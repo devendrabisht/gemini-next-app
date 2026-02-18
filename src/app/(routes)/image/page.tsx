@@ -148,19 +148,31 @@ export default function UploadWithPrompt() {
       <Card className="p-6 space-y-6">
         <FileUpload
           value={files}
-          onValueChange={(incoming) =>
-            setFiles(
-              incoming.map((file) =>
-                "id" in file
-                  ? file
-                  : Object.assign(file, {
-                      id: crypto.randomUUID(),
+        //   onValueChange={(incoming) =>
+        //     setFiles(
+        //       incoming.map((file) =>
+        //         "id" in file
+        //           ? file
+        //           : Object.assign(file, {
+        //               id: crypto.randomUUID(),
+        //             })
+        //       )
+        //     )
+        //   }
+            onValueChange={(incoming) => {
+                setFiles(
+                    incoming.map((file) => {
+                        const f = file as FileWithId;
+                
+                        return {
+                        ...file,
+                        id: f.id ?? crypto.randomUUID(),
+                        };
                     })
-              )
-            )
-          }
-          multiple
-          accept="image/*"
+                );
+            }}
+            multiple
+            accept="image/*"
         >
           {/* Dropzone */}
           <FileUploadDropzone>
