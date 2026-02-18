@@ -87,6 +87,8 @@ export async function POST(req: Request) {
 
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     const output = await replicate.run(model, { input });
+    const stream = output as unknown as ReadableStream<Uint8Array>;
+    const buffer = await streamToBuffer(stream);
     // console.log(JSON.stringify(output, null, 2));
 
     // const imageUrl = output.url(); // To access the file URL
@@ -95,7 +97,7 @@ export async function POST(req: Request) {
     const imgName = `generated-${Math.random() * 1000}.png`;
     const imgPath = path.join(tempDirPath, imgName);
     const imgUrl = `${tempDirName}/${imgName}`;
-    await writeFile(imgPath, output); // To write the file to disk
+    await writeFile(imgPath, buffer); // To write the file to disk
 
     // return Response.json({
     //     image: imageUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
@@ -106,8 +108,8 @@ export async function POST(req: Request) {
     /* Response */
     /* -------------------------------------------------------------- */
 
-    const imageUrl = output.url().href; // To access the file URL
-    
+    // const imageUrl = output.url().href; // To access the file URL
+
     return NextResponse.json({
       success: true,
       prompt,
