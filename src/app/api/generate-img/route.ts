@@ -3,8 +3,15 @@ import { GoogleGenAI } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
 
-import mime from "mime-types";
+// import mime from "mime-types";
 
+// ✅ Use file info instead:
+// const contentType = file.type || "application/octet-stream";
+
+
+// or
+
+// const ext = path.extname(file.name);
 
 import { writeFile } from "fs/promises";
 
