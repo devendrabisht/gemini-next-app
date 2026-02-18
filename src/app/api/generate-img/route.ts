@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     };
     
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-    const output: ReadableStream{readable} = await replicate.run(model, { input });
+    const output: ReadableStream<readable> = await replicate.run(model, { input });
     // output is ReadableStream
     // ReadableStream { locked: false, state: 'readable', supportsBYOB: false }
     // URL {
