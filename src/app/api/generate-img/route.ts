@@ -55,8 +55,8 @@ export async function POST(req: Request) {
     console.log(JSON.stringify(output, null, 2));
 
     // const imageUrl = output.url(); // To access the file URL
-    const file = output as ReplicateFile;
-    const imageUrl = file.url();
+    // const file = output as ReplicateFile;
+    // const imageUrl = file.url();
     // console.log(imageUrl);
 
     const imgName = `generated-${Math.random() * 1000}.png`;
@@ -64,6 +64,8 @@ export async function POST(req: Request) {
     const imgUrl = `${tempDirName}/${imgName}`;
     await writeFile(imgPath, output); // To write the file to disk
 
+    const imageUrl = output.url(); // To access the file URL
+    
     return Response.json({
         image: imageUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
         imgUrl: imgUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
