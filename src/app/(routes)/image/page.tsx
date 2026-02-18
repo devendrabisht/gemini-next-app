@@ -150,7 +150,7 @@ export default function UploadWithPrompt() {
         value={files}
         onValueChange={(incoming) =>
             setFiles(
-                incoming.map((file) =>
+                incoming.map((file: FileWithId) =>
                     "id" in file
                 ? file
                 : Object.assign(file, {
