@@ -114,7 +114,7 @@ export async function POST(req: Request) {
       success: true,
       prompt,
       inputImages: savedFiles,
-      resultImageUrl: imageUrl,
+      resultImageUrl: imgUrl,
     });
 
   } catch (error) {
