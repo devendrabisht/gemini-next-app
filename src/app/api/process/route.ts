@@ -13,6 +13,8 @@ import { getBaseUrl } from "@/lib/utils";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+import Replicate from "replicate";
+
 /* ------------------------------------------------------------------ */
 /* POST Handler */
 /* ------------------------------------------------------------------ */
