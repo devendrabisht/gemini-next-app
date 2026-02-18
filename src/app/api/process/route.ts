@@ -61,6 +61,14 @@ export async function POST(req: Request) {
     const uploadDir = path.join(process.cwd(), "public", "temp");
     await mkdir(uploadDir, { recursive: true });
 
+    const tempDirName = "temp";
+    const tempDirPath = path.join(process.cwd(), "public", tempDirName); // Absolute path to /public/temp
+    
+    // Ensure directory exists
+    if (!fs.existsSync(tempDirPath)) {
+        fs.mkdirSync(tempDirPath, { recursive: true });
+    }
+
     /* -------------------------------------------------------------- */
     /* Save uploaded files (ORDER PRESERVED) */
     /* -------------------------------------------------------------- */
