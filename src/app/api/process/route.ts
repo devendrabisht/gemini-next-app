@@ -3,6 +3,8 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
+import { getBaseUrl } from "@/lib/utils";
+
 /* ------------------------------------------------------------------ */
 /* IMPORTANT CONFIG */
 /* ------------------------------------------------------------------ */
@@ -30,6 +32,13 @@ export async function POST(req: Request) {
     }
 
     /* -------------------------------------------------------------- */
+    /* Resolve request origin (IMPORTANT) */
+    /* -------------------------------------------------------------- */
+
+    const baseUrl = getBaseUrl(req);
+
+
+    /* -------------------------------------------------------------- */
     /* Create temp folder */
     /* -------------------------------------------------------------- */
 
@@ -51,8 +60,10 @@ export async function POST(req: Request) {
       const filepath = path.join(uploadDir, filename);
 
       await writeFile(filepath, buffer);
-      savedFiles.push(`/temp/${filename}`);
+      savedFiles.push(`${baseUrl}/temp/${filename}`);
     }
+
+    // console.log(savedFiles);
 
     /* -------------------------------------------------------------- */
     /* 👉 CALL AI HERE (Replicate / Gemini / etc.)
@@ -62,7 +73,34 @@ export async function POST(req: Request) {
     -------------------------------------------------------------- */
 
     // MOCK RESULT (replace with AI output later)
-    const resultImageUrl = savedFiles[0];
+    // const resultImageUrl = savedFiles[0];
+    const input = {
+        prompt,
+        resolution: "1 MP",
+        aspect_ratio: "match_input_image",
+        input_images: savedFiles,
+        output_format: "jpg",
+        output_quality: 80,
+        safety_tolerance: 2,
+        prompt_upsampling: false
+    };
+
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    const output = await replicate.run(model, { input });
+    console.log(JSON.stringify(output, null, 2));
+
+    const imageUrl = output.url(); // To access the file URL
+    // console.log(imageUrl);
+
+    const imgName = `generated-${Math.random() * 1000}.png`;
+    const imgPath = path.join(tempDirPath, imgName);
+    const imgUrl = `${tempDirName}/${imgName}`;
+    await writeFile(imgPath, output); // To write the file to disk
+
+    // return Response.json({
+    //     image: imageUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
+    //     imgUrl: imgUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
+    // });
 
     /* -------------------------------------------------------------- */
     /* Response */
@@ -72,7 +110,7 @@ export async function POST(req: Request) {
       success: true,
       prompt,
       inputImages: savedFiles,
-      resultImageUrl,
+      resultImageUrl: imageUrl,
     });
 
   } catch (error) {
