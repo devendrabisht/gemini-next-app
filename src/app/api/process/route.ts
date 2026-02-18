@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+// import path from "path";
 import crypto from "crypto";
 
 import { getBaseUrl } from "@/lib/utils";
@@ -12,6 +12,9 @@ import { getBaseUrl } from "@/lib/utils";
 // Required for file uploads
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+import fs from "node:fs";
+import path from "node:path";
 
 import Replicate from "replicate";
 
