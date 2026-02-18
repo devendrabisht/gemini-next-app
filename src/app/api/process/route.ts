@@ -87,6 +87,8 @@ export async function POST(req: Request) {
         prompt_upsampling: false
     };
 
+    const model = "black-forest-labs/flux-2-pro";
+
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     const output = await replicate.run(model, { input });
     const stream = output as unknown as ReadableStream<Uint8Array>;
