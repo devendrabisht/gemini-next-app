@@ -17,6 +17,10 @@ import { writeFile } from "fs/promises";
 
 import Replicate from "replicate";
 
+type ReplicateFile = {
+    url: () => string;
+};
+
 export async function POST(req: Request) {
     const { model, prompt } = await req.json();
 
@@ -50,7 +54,9 @@ export async function POST(req: Request) {
     const output = await replicate.run(model, { input });
     console.log(JSON.stringify(output, null, 2));
 
-    const imageUrl = output.url(); // To access the file URL
+    // const imageUrl = output.url(); // To access the file URL
+    const file = output as ReplicateFile;
+    const imageUrl = file.url();
     // console.log(imageUrl);
 
     const imgName = `generated-${Math.random() * 1000}.png`;
