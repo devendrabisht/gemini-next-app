@@ -98,7 +98,8 @@ export async function POST(req: Request) {
     // const imageUrl = file.url();
     // console.log(imageUrl);
 
-    const buffer = await streamToBuffer(output);
+    const stream = output as unknown as ReadableStream<Uint8Array>;
+    const buffer = await streamToBuffer(stream);
     
     const imgName = `generated-${Math.random() * 1000}.png`;
     const imgPath = path.join(tempDirPath, imgName);
