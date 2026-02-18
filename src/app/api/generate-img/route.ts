@@ -17,13 +17,13 @@ import { writeFile } from "fs/promises";
 
 import Replicate from "replicate";
 
-type ReplicateFile = {
-    url: () => string;
-};
+// type ReplicateFile = {
+//     url: () => string;
+// };
 
 export async function POST(req: Request) {
     const { model, prompt } = await req.json();
-
+    
     const tempDirName = "temp";
     const tempDirPath = path.join(process.cwd(), "public", tempDirName); // Absolute path to /public/temp
     
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     //     aspect_ratio: "16:9",
     //     safety_filter_level: "block_medium_and_above"
     // };
-
+    
     const input = {
         prompt,
         resolution: "1 MP",
@@ -49,33 +49,60 @@ export async function POST(req: Request) {
         safety_tolerance: 2,
         prompt_upsampling: false
     };
-
+    
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     const output = await replicate.run(model, { input });
-    console.log(JSON.stringify(output, null, 2));
-
+    // output is ReadableStream
+    // ReadableStream { locked: false, state: 'readable', supportsBYOB: false }
+    // URL {
+    //     href: 'https://replicate.delivery/xezq/996QwkQIk7LoCtK6SO208faSXGvqenMZCZ4OHJyT1aXdi9IWA/tmpoq9demlk.webp',
+    //     origin: 'https://replicate.delivery',
+    //     protocol: 'https:',
+    //     href: 'https://replicate.delivery/xezq/996QwkQIk7LoCtK6SO208faSXGvqenMZCZ4OHJyT1aXdi9IWA/tmpoq9demlk.webp',
+    //     origin: 'https://replicate.delivery',
+    //     protocol: 'https:',
+    //     origin: 'https://replicate.delivery',
+    //     protocol: 'https:',
+    //     username: '',
+    //     password: '',
+    //     host: 'replicate.delivery',
+    //     hostname: 'replicate.delivery',
+    //     port: '',
+    //     pathname: '/xezq/996QwkQIk7LoCtK6SO208faSXGvqenMZCZ4OHJyT1aXdi9IWA/tmpoq9demlk.webp',
+    //     search: '',
+    //     searchParams: URLSearchParams {},
+    //     hash: ''
+    // }
+    
+    // console.log(JSON.stringify(output, null, 2));
+    // console.log(output);
+    // console.log(output.url());
+    // const url = output.url().href;
+    // console.log(url);
+    
     // const imageUrl = output.url(); // To access the file URL
     // const file = output as ReplicateFile;
     // const imageUrl = file.url();
     // console.log(imageUrl);
-
+    
     const imgName = `generated-${Math.random() * 1000}.png`;
     const imgPath = path.join(tempDirPath, imgName);
     const imgUrl = `${tempDirName}/${imgName}`;
     await writeFile(imgPath, output); // To write the file to disk
-
-    const imageUrl = output.url(); // To access the file URL
+    
+    const imageUrl = output.url().href; // To access the file URL
     
     return Response.json({
         image: imageUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
         imgUrl: imgUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
+        output: output, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
     });
-
-
+    
+    
     // return;
-
-
-
+    
+    
+    
     // const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
     // const response = await ai.models.generateContent({
     //     model: "gemini-3-pro-image-preview",
@@ -90,19 +117,19 @@ export async function POST(req: Request) {
     //         const imgName = `generated-${Math.random() * 1000}.png`;
     //         const imgPath = path.join(tempDirPath, imgName);
     //         const imgUrl = `${tempDirName}/${imgName}`;
-
+    
     //         const base64ImgData = part.inlineData.data;
     //         const imgBuffer = Buffer.from(base64ImgData, "base64");
     //         fs.writeFileSync(imgPath, imgBuffer); // Writing image to provided location as buffer(raw binary data)
     //         console.log(`Image saved at ${imgPath}`);
-
-            
+    
+    
     //         return Response.json({
     //             image: imgUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
     //         });
     //     }
     // }
-
+    
     // console.log("AFTER LOOP");
     
     // // const imageUrl = "https://goo.gle/instrument-img";
@@ -135,7 +162,7 @@ export async function POST(req: Request) {
     
     // const fileName = `generated-${Math.random() * 1000}.png`;
     // const filePath = path.join(tempDir, fileName);
-
+    
     // const imgBuffer = Buffer.from(base64ImageData, "base64"); // Converting base64 string to buffer(bytes)
     
     // console.log(filePath);

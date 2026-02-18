@@ -13,11 +13,6 @@ import { getBaseUrl } from "@/lib/utils";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-
-type ReplicateFile = {
-    url: () => string;
-};
-
 /* ------------------------------------------------------------------ */
 /* POST Handler */
 /* ------------------------------------------------------------------ */
@@ -92,11 +87,9 @@ export async function POST(req: Request) {
 
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     const output = await replicate.run(model, { input });
-    console.log(JSON.stringify(output, null, 2));
+    // console.log(JSON.stringify(output, null, 2));
 
     // const imageUrl = output.url(); // To access the file URL
-    const file = output as ReplicateFile;
-    const imageUrl = file.url();
     // console.log(imageUrl);
 
     const imgName = `generated-${Math.random() * 1000}.png`;
@@ -113,6 +106,8 @@ export async function POST(req: Request) {
     /* Response */
     /* -------------------------------------------------------------- */
 
+    const imageUrl = output.url().href; // To access the file URL
+    
     return NextResponse.json({
       success: true,
       prompt,
