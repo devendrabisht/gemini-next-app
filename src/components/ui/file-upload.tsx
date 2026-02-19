@@ -1,5 +1,6 @@
 "use client";
 
+
 import {
   FileArchiveIcon,
   FileAudioIcon,
@@ -1066,26 +1067,47 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
   const itemContext = useFileUploadItemContext(ITEM_PREVIEW_NAME);
   const context = useFileUploadContext(ITEM_PREVIEW_NAME);
 
+  // const getDefaultRender = React.useCallback(
+  //   (file: File) => {
+  //     if (itemContext.fileState?.file.type.startsWith("image/")) {
+  //       let url = context.urlCache.get(file);
+  //       if (!url) {
+  //         url = URL.createObjectURL(file);
+  //         context.urlCache.set(file, url);
+  //       }
+
+  //       return (
+  //         // biome-ignore lint/performance/noImgElement: dynamic file URLs from user uploads don't work well with Next.js Image optimization
+  //         <img src={url} alt={file.name} className="size-full object-cover" />
+  //       );
+  //     }
+
+  //     return getFileIcon(file);
+  //   },
+  //   [itemContext.fileState?.file.type, context.urlCache],
+  // );
+
   const getDefaultRender = React.useCallback(
     (file: File) => {
-      if (itemContext.fileState?.file.type.startsWith("image/")) {
+      // SAFETY CHECK
+      if (itemContext.fileState?.file && itemContext.fileState.file.type?.startsWith("image/")) {
         let url = context.urlCache.get(file);
         if (!url) {
           url = URL.createObjectURL(file);
           context.urlCache.set(file, url);
         }
-
+  
         return (
-          // biome-ignore lint/performance/noImgElement: dynamic file URLs from user uploads don't work well with Next.js Image optimization
           <img src={url} alt={file.name} className="size-full object-cover" />
         );
       }
-
+  
       return getFileIcon(file);
     },
-    [itemContext.fileState?.file.type, context.urlCache],
+    [itemContext.fileState, context.urlCache],
   );
 
+  
   const onPreviewRender = React.useCallback(
     (file: File) => {
       if (render) {
