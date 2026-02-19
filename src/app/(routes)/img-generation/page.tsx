@@ -6,7 +6,10 @@ import {
     NativeSelect,
     NativeSelectOptGroup,
     NativeSelectOption,
-} from "@/components/ui/native-select"
+} from "@/components/ui/native-select";
+
+import AspectRatioSelector from "@/components/form/AspectRatioSelector";
+import ImgFormatSelector from "@/components/form/ImgFormatSelector";
 
 export default function ImageGenerator() {
     const [model, setModel] = useState("");
@@ -14,6 +17,9 @@ export default function ImageGenerator() {
     const [image, setImage] = useState<string | null>(null);
     // const [image, setImage] = useState<string | null>("/tabla.jpeg");
     const [loading, setLoading] = useState(false);
+
+    const [aspectRatio, setAspectRatio] = useState("16:9");
+    const [imgFormat, setImgFormat] = useState("webp");
 
     // alert(image);
 
@@ -41,6 +47,22 @@ export default function ImageGenerator() {
     
     return (
         <div className="space-y-4">
+            <AspectRatioSelector
+                onChange={ (event) => {
+                    setAspectRatio(event.target.value)
+                } }
+            />
+            <h1>Aspect Ratio: {aspectRatio}</h1>
+            <hr/>
+
+            <ImgFormatSelector
+                onChange={ (event) => {
+                    setImgFormat(event.target.value)
+                } }
+            />
+            <h1>Img Format: {imgFormat}</h1>
+            <hr/>
+
             <NativeSelect onChange={
                 (event) => {
                     setModel(event.target.value)
