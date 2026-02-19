@@ -25,9 +25,10 @@ import FileDropzone from "@/components/FileDropzone";
 /*                                  Types                                     */
 /* -------------------------------------------------------------------------- */
 
-type FileWithId = File & {
+type UploadItem = {
   id: string;
-  preview: string;
+  file: File;      // ✅ REAL file (for backend)
+  preview: string; // ✅ UI only (blob URL)
 };
 
 /* -------------------------------------------------------------------------- */
@@ -35,14 +36,14 @@ type FileWithId = File & {
 /* -------------------------------------------------------------------------- */
 
 function SortableFileItem({
-  file,
+  item,
   onDelete,
 }: {
-  file: FileWithId;
+  item: UploadItem;
   onDelete: (id: string) => void;
 }) {
   const { setNodeRef, transform, transition, attributes, listeners } =
-    useSortable({ id: file.id });
+    useSortable({ id: item.id });
 
   return (
     <div
@@ -56,7 +57,7 @@ function SortableFileItem({
       {/* Delete Button */}
       <button
         type="button"
-        onClick={() => onDelete(file.id)}
+        onClick={() => onDelete(item.id)}
         className="absolute right-2 top-2 z-10 rounded-full bg-background p-1 shadow"
       >
         <X className="h-4 w-4" />
@@ -69,15 +70,15 @@ function SortableFileItem({
         className="cursor-grab active:cursor-grabbing"
       >
         <img
-          src={file.preview}
-          alt={file.name}
+          src={item.preview}
+          alt={item.file.name}
           className="h-40 w-full rounded-md object-cover"
         />
       </div>
 
       {/* File Name */}
       <p className="mt-2 truncate text-center text-sm">
-        {file.name}
+        {item.file.name}
       </p>
     </div>
   );
@@ -88,23 +89,23 @@ function SortableFileItem({
 /* -------------------------------------------------------------------------- */
 
 export default function UploadWithPrompt() {
-  const [files, setFiles] = React.useState<FileWithId[]>([]);
+  const [items, setItems] = React.useState<UploadItem[]>([]);
   const [prompt, setPrompt] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [resultImage, setResultImage] = React.useState<string | null>(null);
 
   /* ------------------------------------------------------------------------ */
-  /*                  Convert FileList → FileWithId[]                          */
+  /*                  Convert FileList → UploadItem[]                          */
   /* ------------------------------------------------------------------------ */
 
   const handleFilesSelected = (fileList: FileList) => {
-    const newFiles: FileWithId[] = Array.from(fileList).map((file) => ({
-      ...file,
+    const newItems: UploadItem[] = Array.from(fileList).map((file) => ({
       id: uuidv4(),
+      file,
       preview: URL.createObjectURL(file),
     }));
 
-    setFiles((prev) => [...prev, ...newFiles]);
+    setItems((prev) => [...prev, ...newItems]);
   };
 
   /* ------------------------------------------------------------------------ */
@@ -112,7 +113,11 @@ export default function UploadWithPrompt() {
   /* ------------------------------------------------------------------------ */
 
   const handleDelete = (id: string) => {
-    setFiles((prev) => prev.filter((file) => file.id !== id));
+    setItems((prev) => {
+      const item = prev.find((i) => i.id === id);
+      if (item) URL.revokeObjectURL(item.preview); // 🧹 cleanup
+      return prev.filter((i) => i.id !== id);
+    });
   };
 
   /* ------------------------------------------------------------------------ */
@@ -123,9 +128,9 @@ export default function UploadWithPrompt() {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    setFiles((prev) => {
-      const oldIndex = prev.findIndex((f) => f.id === active.id);
-      const newIndex = prev.findIndex((f) => f.id === over.id);
+    setItems((prev) => {
+      const oldIndex = prev.findIndex((i) => i.id === active.id);
+      const newIndex = prev.findIndex((i) => i.id === over.id);
       return arrayMove(prev, oldIndex, newIndex);
     });
   };
@@ -139,7 +144,11 @@ export default function UploadWithPrompt() {
 
     const formData = new FormData();
     formData.append("prompt", prompt);
-    files.forEach((file) => formData.append("files", file));
+
+    // ✅ ONLY send raw File objects
+    items.forEach((item) => {
+      formData.append("files", item.file);
+    });
 
     const res = await fetch("/api/process", {
       method: "POST",
@@ -159,28 +168,26 @@ export default function UploadWithPrompt() {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       {/* ================= LEFT PANEL ================= */}
       <Card className="space-y-6 p-6">
-        {/* Dropzone */}
         <FileDropzone
           onFilesSelected={handleFilesSelected}
           maxFiles={6}
           maxSizeMb={5}
         />
 
-        {/* Sortable Preview */}
-        {files.length > 0 && (
+        {items.length > 0 && (
           <DndContext
             collisionDetection={closestCenter}
             onDragEnd={onDragEnd}
           >
             <SortableContext
-              items={files.map((f) => f.id)}
+              items={items.map((i) => i.id)}
               strategy={rectSortingStrategy}
             >
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                {files.map((file) => (
+                {items.map((item) => (
                   <SortableFileItem
-                    key={file.id}
-                    file={file}
+                    key={item.id}
+                    item={item}
                     onDelete={handleDelete}
                   />
                 ))}
@@ -189,17 +196,15 @@ export default function UploadWithPrompt() {
           </DndContext>
         )}
 
-        {/* Prompt */}
         <Input
           placeholder="Describe what you want to create..."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />
 
-        {/* Submit */}
         <Button
           onClick={submit}
-          disabled={loading || files.length === 0}
+          disabled={loading || items.length === 0}
         >
           {loading ? "Processing..." : "Submit"}
         </Button>

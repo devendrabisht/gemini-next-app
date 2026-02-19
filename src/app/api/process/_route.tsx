@@ -61,8 +61,8 @@ export async function POST(req: Request) {
     /* Create temp folder */
     /* -------------------------------------------------------------- */
 
-    // const uploadDir = path.join(process.cwd(), "public", "temp");
-    // await mkdir(uploadDir, { recursive: true });
+    const uploadDir = path.join(process.cwd(), "public", "temp");
+    await mkdir(uploadDir, { recursive: true });
 
     const tempDirName = "temp";
     const tempDirPath = path.join(process.cwd(), "public", tempDirName); // Absolute path to /public/temp
@@ -84,13 +84,13 @@ export async function POST(req: Request) {
 
       const ext = path.extname(file.name) || ".png";
       const filename = `${crypto.randomUUID()}${ext}`;
-      const filepath = path.join(tempDirPath, filename);
+      const filepath = path.join(uploadDir, filename);
 
       await writeFile(filepath, buffer);
       savedFiles.push(`${baseUrl}/temp/${filename}`);
     }
 
-    console.log(savedFiles);
+    // console.log(savedFiles);
 
     /* -------------------------------------------------------------- */
     /* 👉 CALL AI HERE (Replicate / Gemini / etc.)
@@ -120,13 +120,12 @@ export async function POST(req: Request) {
     const buffer = await streamToBuffer(stream);
     // console.log(JSON.stringify(output, null, 2));
 
-    // // const imageUrl = output.url(); // To access the file URL
-    // // console.log(imageUrl);
+    // const imageUrl = output.url(); // To access the file URL
+    // console.log(imageUrl);
 
     const imgName = `generated-${Math.random() * 1000}.png`;
     const imgPath = path.join(tempDirPath, imgName);
-    // const imgUrl = `${tempDirName}/${imgName}`;
-    const imgUrl = `${baseUrl}/${tempDirName}/${imgName}`;
+    const imgUrl = `${tempDirName}/${imgName}`;
     await writeFile(imgPath, buffer); // To write the file to disk
 
     // return Response.json({
@@ -145,7 +144,6 @@ export async function POST(req: Request) {
       prompt,
       inputImages: savedFiles,
       resultImageUrl: imgUrl,
-      output: output,
     });
 
   } catch (error) {
