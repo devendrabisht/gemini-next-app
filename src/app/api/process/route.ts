@@ -32,6 +32,11 @@ async function streamToBuffer(stream: ReadableStream) {
     return Buffer.concat(chunks);
 }
 
+async function fileToBase64(file: File) {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  return `data:${file.type};base64,${buffer.toString("base64")}`;
+}
+
 /* ------------------------------------------------------------------ */
 /* POST Handler */
 /* ------------------------------------------------------------------ */
@@ -77,6 +82,7 @@ export async function POST(req: Request) {
     /* -------------------------------------------------------------- */
 
     const savedFiles: string[] = [];
+    const savedFilesBASE: string[] = [];
 
     for (const file of files) {
       const bytes = await file.arrayBuffer();
@@ -88,9 +94,12 @@ export async function POST(req: Request) {
 
       await writeFile(filepath, buffer);
       savedFiles.push(`${baseUrl}/temp/${filename}`);
+
+      const imageBase64 = await fileToBase64(file);
+      savedFilesBASE.push(imageBase64);
     }
 
-    console.log(savedFiles);
+    // console.log(savedFiles);
 
     /* -------------------------------------------------------------- */
     /* 👉 CALL AI HERE (Replicate / Gemini / etc.)
@@ -105,27 +114,34 @@ export async function POST(req: Request) {
         prompt,
         resolution: "1 MP",
         aspect_ratio: "match_input_image",
-        input_images: savedFiles,
+        input_images: savedFilesBASE,
         output_format: "jpg",
         output_quality: 80,
         safety_tolerance: 2,
         prompt_upsampling: false
     };
+    // console.log(input);
 
     const model = "black-forest-labs/flux-2-pro";
 
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     const output = await replicate.run(model, { input });
+    // To access the file URL:
+    // console.log(output.url()); //=> "http://example.com"
+
+    // To write the file to disk:
+    // fs.writeFile("my-image.png", output);
+
+
     const stream = output as unknown as ReadableStream<Uint8Array>;
     const buffer = await streamToBuffer(stream);
     // console.log(JSON.stringify(output, null, 2));
 
-    // // const imageUrl = output.url(); // To access the file URL
-    // // console.log(imageUrl);
+    // // // const imageUrl = output.url(); // To access the file URL
+    // // // console.log(imageUrl);
 
     const imgName = `generated-${Math.random() * 1000}.png`;
     const imgPath = path.join(tempDirPath, imgName);
-    // const imgUrl = `${tempDirName}/${imgName}`;
     const imgUrl = `${baseUrl}/${tempDirName}/${imgName}`;
     await writeFile(imgPath, buffer); // To write the file to disk
 
@@ -138,13 +154,14 @@ export async function POST(req: Request) {
     /* Response */
     /* -------------------------------------------------------------- */
 
-    // const imageUrl = output.url().href; // To access the file URL
+    const replicateImageUrl = output.url().href; // To access the file URL
 
     return NextResponse.json({
       success: true,
       prompt,
       inputImages: savedFiles,
       resultImageUrl: imgUrl,
+      replicateImageUrl: replicateImageUrl,
       output: output,
     });
 
