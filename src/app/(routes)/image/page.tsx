@@ -14,12 +14,14 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { v4 as uuidv4 } from "uuid";
-import { X } from "lucide-react";
+import { X, Download } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import FileDropzone from "@/components/FileDropzone";
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                                  Types                                     */
@@ -211,19 +213,33 @@ export default function UploadWithPrompt() {
       </Card>
 
       {/* ================= RIGHT PANEL ================= */}
-      <Card className="flex items-center justify-center p-6">
-        {resultImage ? (
-          <img
-            src={resultImage}
-            alt="Result"
-            className="max-h-[500px] rounded-lg object-contain"
-          />
-        ) : (
-          <p className="text-muted-foreground">
-            Result image will appear here
-          </p>
-        )}
-      </Card>
+      <Card className="relative flex items-center justify-center p-6">
+  {resultImage ? (
+    <div className="relative">
+      {/* Result Image */}
+      <img
+        src={resultImage}
+        alt="Result"
+        className="max-h-[500px] rounded-lg object-contain"
+      />
+
+      {/* Download Button */}
+      <a
+        href={resultImage}
+        download="result.jpg"
+        className="absolute bottom-3 right-3 rounded-full bg-background/90 p-2 shadow-md backdrop-blur hover:bg-background"
+        title="Download image"
+      >
+        <Download className="h-5 w-5" />
+      </a>
+    </div>
+  ) : (
+    <p className="text-muted-foreground">
+      Result image will appear here
+    </p>
+  )}
+</Card>
+
     </div>
   );
 }
