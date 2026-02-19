@@ -16,6 +16,8 @@ import {
 
 import { CSS } from "@dnd-kit/utilities";
 
+import { v4 as uuidv4 } from "uuid";
+
 import {
     FileUpload,
     FileUploadDropzone,
@@ -168,10 +170,10 @@ export default function UploadWithPrompt() {
             setFiles(
                 incoming.map((file) => {
                     const f = file as FileWithId;
-        
+
                     return {
-                    ...file,
-                    id: f.id ?? crypto.randomUUID(),
+                        ...file,
+                        id: f.id ?? uuidv4(),
                     };
                 })
             );
