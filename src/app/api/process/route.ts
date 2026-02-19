@@ -69,8 +69,8 @@ export async function POST(req: Request) {
     // const uploadDir = path.join(process.cwd(), "public", "temp");
     // await mkdir(uploadDir, { recursive: true });
 
-    const tempDirName = "temp";
-    const tempDirPath = path.join(process.cwd(), "public", tempDirName); // Absolute path to /public/temp
+    const tempDirName = "tmp";
+    const tempDirPath = path.join(process.cwd(), tempDirName); // Absolute path to /tmp
     
     // Ensure directory exists
     if (!fs.existsSync(tempDirPath)) {
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       const filepath = path.join(tempDirPath, filename);
 
       await writeFile(filepath, buffer);
-      savedFiles.push(`${baseUrl}/temp/${filename}`);
+      savedFiles.push(`${baseUrl}/${tempDirName}/${filename}`);
 
       // const imageBase64 = await fileToBase64(file);
       // savedFilesBASE.push(imageBase64);
