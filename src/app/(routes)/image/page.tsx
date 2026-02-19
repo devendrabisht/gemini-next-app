@@ -164,21 +164,21 @@ export default function UploadWithPrompt() {
     // }
     
     
-    onValueChange={(incoming) => {
-        setFiles(
-            incoming.map((file) => {
-                const f = file as FileWithId;
-    
-                return {
-                ...file,
-                id: f.id ?? crypto.randomUUID(),
-                };
-            })
-        );
-    }}
-    
-    multiple
-    accept="image/*"
+        onValueChange={(incoming) => {
+            setFiles(
+                incoming.map((file) => {
+                    const f = file as FileWithId;
+        
+                    return {
+                    ...file,
+                    id: f.id ?? crypto.randomUUID(),
+                    };
+                })
+            );
+        }}
+        
+        multiple
+        accept="image/*"
     >
     {/* Dropzone */}
     <FileUploadDropzone>

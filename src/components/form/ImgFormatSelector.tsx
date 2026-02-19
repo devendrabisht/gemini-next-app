@@ -4,7 +4,13 @@ import {
     NativeSelectOption,
 } from "@/components/ui/native-select";
 
-export default function ImgFormatSelector({ onChange }) {
+import type { ChangeEvent } from "react";
+
+type ImgFormatSelectorProps = {
+    onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export default function ImgFormatSelector({ onChange } : ImgFormatSelectorProps) {
     const formats = [
         "webp",
         "jpg",

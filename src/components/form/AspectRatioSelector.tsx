@@ -4,7 +4,13 @@ import {
     NativeSelectOption,
 } from "@/components/ui/native-select";
 
-export default function AspectRatioSelector({ onChange }) {
+import type { ChangeEvent } from "react";
+
+type AspectRatioSelectorProps = {
+    onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export default function AspectRatioSelector({ onChange } : AspectRatioSelectorProps) {
     const aspectRatios = [
         "custom",
         "1:1",
