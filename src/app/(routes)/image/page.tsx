@@ -6,12 +6,14 @@ import {
     closestCenter,
     DragEndEvent,
 } from "@dnd-kit/core";
+
 import {
     SortableContext,
     useSortable,
     arrayMove,
     rectSortingStrategy,
 } from "@dnd-kit/sortable";
+
 import { CSS } from "@dnd-kit/utilities";
 
 import {
@@ -148,31 +150,33 @@ export default function UploadWithPrompt() {
         <Card className="p-6 space-y-6">
         <FileUpload
         value={files}
-        onValueChange={(incoming) =>
-            setFiles(
-                incoming.map((file: FileWithId) =>
-                    "id" in file
-                ? file
-                : Object.assign(file, {
-                    id: crypto.randomUUID(),
-                })
-            )
-        )
-    }
+
+    //     onValueChange={(incoming) =>
+    //         setFiles(
+    //             incoming.map((file: FileWithId) =>
+    //                 "id" in file
+    //             ? file
+    //             : Object.assign(file, {
+    //                 id: crypto.randomUUID(),
+    //             })
+    //         )
+    //     )
+    // }
     
     
-    // onValueChange={(incoming) => {
-    //     setFiles(
-    //         incoming.map((file) => {
-    //             const f = file as FileWithId;
+    onValueChange={(incoming) => {
+        setFiles(
+            incoming.map((file) => {
+                const f = file as FileWithId;
     
-    //             return {
-    //             ...file,
-    //             id: f.id ?? crypto.randomUUID(),
-    //             };
-    //         })
-    //     );
-    // }}
+                return {
+                ...file,
+                id: f.id ?? crypto.randomUUID(),
+                };
+            })
+        );
+    }}
+    
     multiple
     accept="image/*"
     >
