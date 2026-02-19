@@ -145,26 +145,23 @@ export async function POST(req: Request) {
     const imgUrl = `${baseUrl}/${tempDirName}/${imgName}`;
     await writeFile(imgPath, buffer); // To write the file to disk
 
-    // return Response.json({
-    //     image: imageUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
-    //     imgUrl: imgUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
-    // });
-
     /* -------------------------------------------------------------- */
     /* Response */
     /* -------------------------------------------------------------- */
+    return Response.json({
+        success: true,
+        resultImageUrl: imgUrl, // Passing image URL of generated image to frontend to be used as `src` of `img` tag
+      });
 
-    const replicateImageUrl = output.url().href; // To access the file URL
     // const replicateImageUrl = output.url().href; // To access the file URL
 
-    return NextResponse.json({
-      success: true,
-      prompt,
-      inputImages: savedFiles,
-      resultImageUrl: imgUrl,
-      replicateImageUrl: replicateImageUrl,
-      output: output,
-    });
+    // return NextResponse.json({
+    //   success: true,
+    //   prompt,
+    //   inputImages: savedFiles,
+    //   resultImageUrl: imgUrl,
+    //   output: output,
+    // });
 
   } catch (error) {
     console.error("Upload error:", error);
