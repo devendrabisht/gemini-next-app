@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
+
+// import { headers } from "next/headers";
+
+// export async function GET() {
+//   const headersList = headers();
+//   const host = headersList.get("host") ?? "";
+
+//   const isLocalhost =
+//     host.includes("localhost") || host.startsWith("127.0.0.1");
+
+//   return Response.json({ isLocalhost });
+// }
+
 export function getBaseUrl(req: Request): string {
     // 1️⃣ Best & stable
     if (process.env.NEXT_PUBLIC_APP_URL) {

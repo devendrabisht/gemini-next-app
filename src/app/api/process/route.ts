@@ -95,8 +95,8 @@ export async function POST(req: Request) {
       await writeFile(filepath, buffer);
       savedFiles.push(`${baseUrl}/temp/${filename}`);
 
-      const imageBase64 = await fileToBase64(file);
-      savedFilesBASE.push(imageBase64);
+      // const imageBase64 = await fileToBase64(file);
+      // savedFilesBASE.push(imageBase64);
     }
 
     // console.log(savedFiles);
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
         prompt,
         resolution: "1 MP",
         aspect_ratio: "match_input_image",
-        input_images: savedFilesBASE,
+        input_images: savedFiles,
         output_format: "jpg",
         output_quality: 80,
         safety_tolerance: 2,
