@@ -155,6 +155,7 @@ export async function POST(req: Request) {
     /* -------------------------------------------------------------- */
 
     const replicateImageUrl = output.url().href; // To access the file URL
+    // const replicateImageUrl = output.url().href; // To access the file URL
 
     return NextResponse.json({
       success: true,
